@@ -22,7 +22,7 @@ main()
     .catch(err => console.log(err));
 
 async function main() {
-    // const connectionString = 'mongodb+srv://vaibhav:@koethecafe.8x5wmra.mongodb.net/';
+    const connectionString = 'mongodb+srv://vaibhav:Svnit1103@koethecafe.8x5wmra.mongodb.net/';
     await mongoose.connect(connectionString);
 }
 
@@ -38,7 +38,7 @@ app.post("/signup", async (req, res) => {
     let { username, useremail, userpassword } = req.body;
     let hashedPassword = await bcrypt.hash(userpassword, 10); // Hash the password
     let user = { name: username, email: useremail, password: hashedPassword };
-    jwt.sign({ user }, secretKey, { expiresIn: '300s' }, async (err, token) => {
+    jwt.sign({ user }, secretKey, { expiresIn: '30s' }, async (err, token) => {
         if (!err) {
             console.log(token);
             let newUser = new User(user);
@@ -58,7 +58,7 @@ app.post("/login", verifyToken, async (req, res) => {
     if (userData.length != 0) {
         let passwordMatch = await bcrypt.compare(userpassword, userData.password);
         if (passwordMatch) {
-            jwt.sign({ user }, secretKey, { expiresIn: '300s' }, (err, token) => {
+            jwt.sign({ user }, secretKey, { expiresIn: '30s' }, (err, token) => {
                 if (!err) {
                     res.cookie("jwttoken", token, {
                         httpOnly: true
@@ -77,8 +77,7 @@ app.post("/login", verifyToken, async (req, res) => {
 app.get("/main", verifyToken, async (req, res) => {
     jwt.verify(req.cookies.jwttoken, secretKey, async (err, authData) => {
         if (err) {
-            console.log(err);
-            res.send("no data");
+            res.redirect('/login');
         } else {
             let userEmail = authData.user.email;
             let userData = await User.find({ email: userEmail });
